@@ -500,11 +500,9 @@ class Level3:
                    f"Máximo {self.max_incorrect} errores permitidos."
         })
         
-        # Crear espacios para letras (suficientes para la palabra más larga)
         for i in range(len(self.big_word)):
             self.letter_spaces.append(DropSpace((WIDTH//2 - 200) + i * 50, 250, width=40, height=40))
         
-        # Crear letras arrastrables
         letters = list(self.big_word)
         random.shuffle(letters)
         for i, letter in enumerate(letters):
@@ -533,15 +531,12 @@ class Level3:
 
     def verify_word(self, word):
         """Verifica si la palabra es válida"""
-        # 1. Verificar que la palabra esté en la lista de posibles palabras
         if word.lower() not in self.possible_words:
             return False
         
-        # 2. Verificar que no se haya encontrado antes
         if word.lower() in self.found_words:
             return False
         
-        # 3. Verificar que se usen solo letras disponibles
         temp_letters = list(self.big_word.lower())
         try:
             for letter in word.lower():
@@ -561,7 +556,6 @@ class Level3:
     def draw(self, surface):
         surface.fill(WHITE)
         
-        # Títulos e información
         title = font_large.render("Nivel 3: Forma palabras cortas", True, BLUE)
         surface.blit(title, (WIDTH//2 - title.get_width()//2, 20))
         
@@ -575,11 +569,9 @@ class Level3:
         word_text = font_medium.render(f"Palabra actual: {current_word}", True, BLACK)
         surface.blit(word_text, (WIDTH//2 - word_text.get_width()//2, 170))
         
-        # Contadores
         errors_text = font_small.render(f"Errores: {self.incorrect_attempts}/{self.max_incorrect}", True, RED)
         surface.blit(errors_text, (WIDTH - 150, 20))
         
-        # Botones
         pygame.draw.rect(surface, GREEN, (300, 300, 120, 50), border_radius=10)
         pygame.draw.rect(surface, RED, (450, 300, 120, 50), border_radius=10)
         
@@ -588,7 +580,6 @@ class Level3:
         surface.blit(check_text, (360 - check_text.get_width()//2, 325 - check_text.get_height()//2))
         surface.blit(reset_text, (510 - reset_text.get_width()//2, 325 - reset_text.get_height()//2))
         
-        # Palabras encontradas
         found_text = font_medium.render(f"Palabras encontradas: {len(self.found_words)}/{self.required_words}", True, BLACK)
         surface.blit(found_text, (50, 400))
         
@@ -596,14 +587,12 @@ class Level3:
             word_surf = font_small.render(word, True, GREEN)
             surface.blit(word_surf, (50, 440 + i * 30))
         
-        # Dibujar elementos del juego
         for space in self.letter_spaces:
             space.draw(surface)
         for letter in self.draggable_letters:
             if not letter.dragging:
                 letter.draw(surface)
                 
-        # Mostrar mensaje de error si existe
         if self.error_timer > 0:
             error_surf = font_medium.render(self.error_message, True, RED)
             alert_rect = pygame.Rect(WIDTH//2 - error_surf.get_width()//2 - 20, 490, 
@@ -619,16 +608,14 @@ class Level3:
             
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                # Botón Verificar
                 if 300 <= event.pos[0] <= 420 and 300 <= event.pos[1] <= 350:
                     current_word = self.get_current_word()
-                    if len(current_word) >= 2:  # Mínimo 2 letras para una palabra
+                    if len(current_word) >= 2: 
                         if self.verify_word(current_word):
                             self.found_words.append(current_word.lower())
                             self.notifier.notify({"type": "speak", "text": f"¡Correcto! Palabra: {current_word}"})
                             self.reset_letters()
                             
-                            # Verificar si completó el nivel
                             if len(self.found_words) >= self.required_words:
                                 self.completed = True
                         else:
@@ -639,16 +626,13 @@ class Level3:
                             self.reset_letters()
                     return False
                 
-                # Botón Borrar
                 if 450 <= event.pos[0] <= 570 and 300 <= event.pos[1] <= 350:
                     self.reset_letters()
                     return False
                 
-                # Arrastrar letras
                 for letter in self.draggable_letters:
                     if letter.rect.collidepoint(event.pos) and not letter.placed:
                         letter.dragging = True
-                        # Mover al final de la lista para que se dibuje encima
                         self.draggable_letters.remove(letter)
                         self.draggable_letters.append(letter)
                         break
@@ -660,7 +644,6 @@ class Level3:
                         letter.dragging = False
                         placed = False
                         
-                        # Intentar colocar en un espacio vacío
                         for space in self.letter_spaces:
                             if space.rect.collidepoint(event.pos) and not space.occupied:
                                 letter.rect.center = space.rect.center
